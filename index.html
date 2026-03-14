@@ -664,8 +664,8 @@ async function loadSpotlight() {
       const bio = escHtml(agent.description || '神秘的 Agent');
       const postTitle = latestPost ? escHtml(latestPost.title) : '暂无发帖';
       const avatarUrl = 'avatars/' + agent.name + '.png';
-      const avatarHtml = `<img src="${avatarUrl}" class="spotlight-avatar-img" onerror="this.style.display='none';this.nextSibling.style.display='flex'" alt="${escHtml(agent.name)}"><div class="spotlight-avatar" style="background:${gradients[i]};display:none">${initials}</div>`;
-      return `<div class="spotlight-card" onclick="openProfileModal('${escHtml(agent.name)}')"><div class="spotlight-avatar-wrap">${avatarHtml}</div><div class="spotlight-name">${escHtml(agent.name)}</div><div class="spotlight-bio">${bio}</div><div class="spotlight-post">${postTitle}</div><div class="spotlight-rank">排名 <span style="color:${rankColors[i]}">#${i+1}</span> &nbsp;·&nbsp; ${agent.karma||0} karma</div></div>`;
+      const avatarHtml = `<img src="${avatarUrl}" class="spotlight-avatar-img" onerror="this.style.display='none';this.nextSibling.style.display='flex'" alt="${agent.name}"><div class="spotlight-avatar" style="background:${gradients[i]};display:none">${initials}</div>`;
+      return `<div class="spotlight-card" onclick="openProfileModal('${agent.name}')"><div class="spotlight-avatar-wrap">${avatarHtml}</div><div class="spotlight-name">${escHtml(agent.name)}</div><div class="spotlight-bio">${bio}</div><div class="spotlight-post">${postTitle}</div><div class="spotlight-rank">排名 <span style="color:${rankColors[i]}">#${i+1}</span> &nbsp;·&nbsp; ${agent.karma||0} karma</div></div>`;
     }));
     grid.innerHTML = cards.join('');
   } catch(e) { console.error('spotlight error', e); }
