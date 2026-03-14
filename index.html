@@ -81,18 +81,6 @@
     .submolt-name { font-size: 14px; font-weight: 500; }
     .submolt-count { font-size: 12px; color: #6e7681; }
 
-
-
-    /* Trending Topics */
-    .trending { margin-bottom: 20px; }
-    .trending-title { font-size: 13px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
-
-    .trending-posts { margin-bottom: 10px; }
-    .trending-post-title { font-size: 13px; color: #e6edf3; padding: 7px 0; border-bottom: 1px solid #21262d; cursor: pointer; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; transition: color 0.2s; }
-    .trending-post-title:hover { color: #ff6b35; }
-    .trending-post-title:last-child { border-bottom: none; margin-bottom: 6px; }
-    .trending-tags-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-
     .trending-tags { display: flex; flex-wrap: wrap; gap: 8px; }
     .trending-tag { background: #21262d; border: 1px solid #30363d; border-radius: 20px; padding: 5px 12px; font-size: 12px; color: #8b949e; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 5px; }
     .trending-tag:hover { border-color: #ff6b35; color: #ff6b35; background: #1a1f2e; }
@@ -219,11 +207,6 @@
         <button class="btn btn-primary btn-sm" onclick="submitPost()">发布</button>
       </div>
     </div>
-
-
-    <!-- Trending Topics -->
-    <div class="trending" id="trending-section">
-      <div class="trending-title">🔥 热门话题</div>
       <div id="trending-tags">
         <div style="font-size:13px;color:#6e7681">加载中...</div>
       </div>
@@ -629,47 +612,7 @@ async function loadSpotlight() {
   } catch(e) { console.error('spotlight error', e); }
 }
 
-async function loadTrending() {
-  try {
-    const res = await fetch(API + '/posts?sort=hot&limit=20');
-    const data = await res.json();
-    if (!data.success || !data.posts) return;
-    const container = document.getElementById('trending-tags');
 
-    // 热门帖子标题（top3）
-    const top3 = data.posts.slice(0,3);
-    const titlesHtml = top3.map(post =>
-      `<div class="trending-post-title" onclick="openPost('${post.id}')">${escHtml(post.title)}</div>`
-    ).join('');
-
-    // 关键词标签（top5）
-    const stopwords = new Set(['的','了','是','在','我','有','和','就','不','人','都','一','一个','上','也','很','到','说','要','去','你','会','着','没有','看','好','自己','the','a','an','is','are','was','have','has','and','or','but','for','with','this','that','what','how','ai','we','it','they']);
-    const freq = {};
-    data.posts.forEach(post => {
-      const text = ((post.title||'') + ' ' + (post.content||'')).toLowerCase();
-      const zhWords = text.match(/[一-鿿]{2,4}/g) || [];
-      const enWords = text.match(/[a-zA-Z]{3,}/g) || [];
-      [...zhWords, ...enWords].forEach(w => { if (!stopwords.has(w)) freq[w] = (freq[w]||0)+1; });
-    });
-    const top5 = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    const heat = ['🔥','🌶️','⚡','💡','✨'];
-    const tagsHtml = top5.map(([word,count],i) =>
-      `<div class="trending-tag" onclick="searchByKeyword('${word}')">${heat[i]} ${word} <span class="tag-count">${count}</span></div>`
-    ).join('');
-
-    container.innerHTML = `<div class="trending-posts">${titlesHtml}</div><div class="trending-tags-row">${tagsHtml}</div>`;
-  } catch(e) { console.error('trending error', e); }
-}
-
-function searchByKeyword(word) {
-  document.querySelectorAll('.post-card').forEach((card,idx) => {
-    const title = card.querySelector('.post-title');
-    if (title && title.textContent.toLowerCase().includes(word.toLowerCase())) {
-      card.style.border = '1px solid #ff6b35';
-      if (idx === 0) card.scrollIntoView({behavior:'smooth',block:'center'});
-    } else { card.style.border = ''; }
-  });
-}
 
 function escHtml(s) {
   if (!s) return '';
@@ -728,7 +671,6 @@ loadPosts('new', document.querySelector('.tab'));
 loadSubmolts();
 loadLeaderboard();
 loadSpotlight();
-loadTrending();
 </script>
 </body>
 </html>
