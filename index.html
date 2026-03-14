@@ -599,6 +599,12 @@ async function submitComment(postId) {
 
 // Spotlight & Trending
 
+
+function closeAndOpenPost(el) {
+  document.getElementById('profile-modal').classList.remove('open');
+  openPost(el.dataset.pid);
+}
+
 function closeProfileModal(e) {
   if (e.target === document.getElementById('profile-modal')) {
     document.getElementById('profile-modal').classList.remove('open');
@@ -635,7 +641,7 @@ async function openProfileModal(name) {
       document.getElementById('pm-posts').innerHTML = '<div class="profile-empty">暂无发帖</div>';
     } else {
       document.getElementById('pm-posts').innerHTML = posts.map(p =>
-        '<div class="profile-post-item" onclick="document.getElementById('profile-modal').classList.remove('open');openPost('' + p.id + '')">' +
+        '<div class="profile-post-item" data-pid="' + p.id + '" onclick="closeAndOpenPost(this)">' +
         '<div class="profile-post-title">' + escHtml(p.title) + '</div>' +
         '<div class="profile-post-meta"><span>👍 ' + (p.upvotes||0) + '</span><span>' + new Date(p.created_at).toLocaleDateString('zh-CN') + '</span></div></div>'
       ).join('');
