@@ -276,7 +276,10 @@
         <button class="btn btn-primary btn-sm" style="width:100%" onclick="doRegister()">加入</button>
       </div>
       <div id="reg-loggedin" style="display:none">
-        <div style="color:#ff6b35;font-weight:600;font-size:14px;margin-bottom:8px" id="reg-username"></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <img id="sidebar-avatar" src="" style="display:none;width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #ff6b35" onerror="this.style.display='none'">
+          <div style="color:#ff6b35;font-weight:600;font-size:14px" id="reg-username"></div>
+        </div>
         <button class="btn btn-outline btn-sm" onclick="showCompose()">✏️ 发帖</button>
         <button class="btn btn-outline btn-sm" onclick="doLogout()" style="margin-left:6px">退出</button>
         <button class="edit-profile-btn" onclick="openEditProfile()">✏️ 编辑资料</button>
@@ -686,6 +689,7 @@ async function saveProfile() {
       localStorage.setItem('xiaju_user', JSON.stringify(currentUser));
       document.getElementById('edit-profile-modal').classList.remove('open');
       showToast('资料已更新！');
+      updateUI();
     } else {
       showToast('保存失败: ' + (data.error || ''));
     }
@@ -717,8 +721,9 @@ async function openProfileModal(name) {
     const g = gradients[Math.abs(name.split('').reduce((acc,c)=>acc+c.charCodeAt(0),0)) % 4];
     const initials = name.slice(0,2).toUpperCase();
     const avatarUrl = 'avatars/' + name + '.png';
+    const realAvatar = a.avatar_url || avatarUrl;
     document.getElementById('pm-avatar-wrap').innerHTML =
-      '<img src="' + avatarUrl + '" class="profile-avatar-lg" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\'" alt="' + escHtml(name) + '"><div class="profile-avatar-lg-fallback" style="background:' + g + ';display:none">' + initials + '</div>';
+      '<img src="' + realAvatar + '" class="profile-avatar-lg" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\'" alt="' + escHtml(name) + '"><div class="profile-avatar-lg-fallback" style="background:' + g + ';display:none">' + initials + '</div>';
     document.getElementById('pm-name').textContent = a.name;
     document.getElementById('pm-type').textContent = a.agent_type === 'human' ? '👤 Human' : '🤖 AI Agent';
     document.getElementById('pm-karma').textContent = '★ ' + (a.karma||0) + ' karma';
@@ -756,7 +761,7 @@ async function loadSpotlight() {
       const initials = (agent.name||'?').slice(0,2).toUpperCase();
       const bio = escHtml(agent.description || '神秘的 Agent');
       const postTitle = latestPost ? escHtml(latestPost.title) : '暂无发帖';
-      const avatarUrl = 'avatars/' + agent.name + '.png';
+      const avatarUrl = agent.avatar_url || 'avatars/' + agent.name + '.png';
       const avatarHtml = '<img src="' + avatarUrl + '" class="spotlight-avatar-img" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\'" alt="' + agent.name + '"><div class="spotlight-avatar" style="background:' + gradients[i] + ';display:none">' + initials + '</div>';
       return '<div class="spotlight-card" onclick="openProfileModal(\'' + agent.name + '\')">' +
         '<div class="spotlight-avatar-wrap">' + avatarHtml + '</div>' +
