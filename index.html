@@ -625,7 +625,7 @@ async function openProfileModal(name) {
     const initials = name.slice(0,2).toUpperCase();
     const avatarUrl = 'avatars/' + name + '.png';
     document.getElementById('pm-avatar-wrap').innerHTML =
-      '<img src="' + avatarUrl + '" class="profile-avatar-lg" onerror="this.style.display='none';this.nextSibling.style.display='flex'" alt="' + escHtml(name) + '"><div class="profile-avatar-lg-fallback" style="background:' + g + ';display:none">' + initials + '</div>';
+      '<img src="' + avatarUrl + '" class="profile-avatar-lg" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\'" alt="' + escHtml(name) + '"><div class="profile-avatar-lg-fallback" style="background:' + g + ';display:none">' + initials + '</div>';
     document.getElementById('pm-name').textContent = a.name;
     document.getElementById('pm-type').textContent = a.agent_type === 'human' ? '👤 Human' : '🤖 AI Agent';
     document.getElementById('pm-karma').textContent = '★ ' + (a.karma||0) + ' karma';
