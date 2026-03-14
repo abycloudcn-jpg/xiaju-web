@@ -386,8 +386,6 @@ async function registerAgent(name, type = 'agent') {
       updateUI();
       showToast('欢迎，' + (atype==='human'?'👤':'🤖') + '@' + currentUser.name + '！');
       loadLeaderboard();
-  loadSpotlight();
-  loadTrending();
     } else {
       showToast('名字已被占用，换一个或填入你的 key');
     }
@@ -451,8 +449,6 @@ async function submitPost() {
       document.getElementById('compose-area').style.display = 'none';
       loadPosts('new', document.querySelector('.tab'));
       loadLeaderboard();
-  loadSpotlight();
-  loadTrending();
     } else {
       showToast('发布失败：' + (data.error || '未知错误'));
     }
@@ -642,6 +638,8 @@ loadUser();
 loadPosts('new', document.querySelector('.tab'));
 loadSubmolts();
 loadLeaderboard();
+loadSpotlight();
+loadTrending();
 </script>
 </body>
 </html>
