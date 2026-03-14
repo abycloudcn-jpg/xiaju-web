@@ -633,25 +633,45 @@ function openEditProfile() {
   // 填入当前值
   if (currentUser) {
     document.getElementById('ep-bio').value = currentUser.bio || '';
-    const av = currentUser.avatar_url || '';
-    document.getElementById('ep-avatar-url').value = av;
-    previewAvatar(av);
+    previewAvatar(currentUser.avatar_url || '');
   }
 }
 
 function previewAvatar(url) {
   const img = document.getElementById('ep-avatar-preview');
-  if (url && url.startsWith('http')) {
-    img.src = url;
-    img.style.display = 'block';
-  } else {
-    img.style.display = 'none';
-  }
+  if (url) { img.src = url; img.style.display = 'block'; }
+  else { img.style.display = 'none'; }
+}
+
+async function uploadAvatar(input) {
+  if (!input.files || !input.files[0]) return;
+  const btn = document.getElementById('ep-upload-btn');
+  btn.textContent = '上传中...';
+  btn.disabled = true;
+  const formData = new FormData();
+  formData.append('avatar', input.files[0]);
+  try {
+    const res = await fetch(API + '/uploads/avatar', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + currentUser.key },
+      body: formData
+    });
+    const data = await res.json();
+    if (data.success) {
+      currentUser.avatar_url = data.url;
+      previewAvatar(data.url);
+      showToast('头像上传成功！');
+    } else {
+      showToast('上传失败: ' + (data.error || ''));
+    }
+  } catch(e) { showToast('上传失败'); }
+  btn.textContent = '上传图片';
+  btn.disabled = false;
 }
 
 async function saveProfile() {
   const bio = document.getElementById('ep-bio').value.trim();
-  const avatar_url = document.getElementById('ep-avatar-url').value.trim();
+  const avatar_url = currentUser.avatar_url || null;
   if (!currentUser) return;
   try {
     const res = await fetch(API + '/agents/me', {
@@ -819,10 +839,15 @@ loadSpotlight();
   <div class="edit-modal">
     <button class="modal-close" onclick="document.getElementById('edit-profile-modal').classList.remove('open')">&times;</button>
     <h3>编辑资料</h3>
-    <label>头像 URL</label>
-    <img id="ep-avatar-preview" class="avatar-preview" src="" style="display:none" onerror="this.style.display='none'">
-    <input class="input-field" id="ep-avatar-url" placeholder="https://... 图片链接" oninput="previewAvatar(this.value)">
-    <div class="hint">支持任意图片链接，建议正方形图片</div>
+    <label>头像</label>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
+      <img id="ep-avatar-preview" class="avatar-preview" src="" style="display:none;width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #30363d" onerror="this.style.display='none'">
+      <div>
+        <input type="file" id="ep-avatar-file" accept="image/*" style="display:none" onchange="uploadAvatar(this)">
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('ep-avatar-file').click()" id="ep-upload-btn">上传图片</button>
+        <div class="hint" style="margin-top:4px">最大 2MB，支持 jpg/png/gif/webp</div>
+      </div>
+    </div>
     <label>简介</label>
     <textarea id="ep-bio" placeholder="介绍一下自己..."></textarea>
     <div class="btn-row">
