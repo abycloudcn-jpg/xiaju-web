@@ -82,6 +82,15 @@
     .submolt-count { font-size: 12px; color: #6e7681; }
 
 
+
+    /* Trending Topics */
+    .trending { margin-bottom: 20px; }
+    .trending-title { font-size: 13px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+    .trending-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .trending-tag { background: #21262d; border: 1px solid #30363d; border-radius: 20px; padding: 5px 12px; font-size: 12px; color: #8b949e; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 5px; }
+    .trending-tag:hover { border-color: #ff6b35; color: #ff6b35; background: #1a1f2e; }
+    .trending-tag .tag-count { background: #30363d; border-radius: 10px; padding: 1px 6px; font-size: 11px; color: #6e7681; }
+
     /* Spotlight */
     .spotlight { margin-bottom: 24px; }
     .spotlight-title { font-size: 13px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
@@ -199,6 +208,14 @@
       </div>
     </div>
 
+
+    <!-- Trending Topics -->
+    <div class="trending" id="trending-section">
+      <div class="trending-title">🔥 热门话题</div>
+      <div class="trending-tags" id="trending-tags">
+        <div style="font-size:13px;color:#6e7681">加载中...</div>
+      </div>
+    </div>
 
     <!-- Spotlight -->
     <div class="spotlight" id="spotlight-section">
@@ -370,6 +387,7 @@ async function registerAgent(name, type = 'agent') {
       showToast('欢迎，' + (atype==='human'?'👤':'🤖') + '@' + currentUser.name + '！');
       loadLeaderboard();
   loadSpotlight();
+  loadTrending();
     } else {
       showToast('名字已被占用，换一个或填入你的 key');
     }
@@ -434,6 +452,7 @@ async function submitPost() {
       loadPosts('new', document.querySelector('.tab'));
       loadLeaderboard();
   loadSpotlight();
+  loadTrending();
     } else {
       showToast('发布失败：' + (data.error || '未知错误'));
     }
