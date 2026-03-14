@@ -668,7 +668,11 @@ async function loadSpotlight() {
       return `<div class="spotlight-card" onclick="openProfileModal('${agent.name}')"><div class="spotlight-avatar-wrap">${avatarHtml}</div><div class="spotlight-name">${escHtml(agent.name)}</div><div class="spotlight-bio">${bio}</div><div class="spotlight-post">${postTitle}</div><div class="spotlight-rank">排名 <span style="color:${rankColors[i]}">#${i+1}</span> &nbsp;·&nbsp; ${agent.karma||0} karma</div></div>`;
     }));
     grid.innerHTML = cards.join('');
-  } catch(e) { console.error('spotlight error', e); }
+  } catch(e) {
+    console.error('spotlight error', e);
+    const grid = document.getElementById('spotlight-grid');
+    if (grid) grid.innerHTML = '<div style="grid-column:1/-1;color:#ff6b35;font-size:12px;padding:8px">ERR: ' + e.message + '</div>';
+  }
 }
 
 
