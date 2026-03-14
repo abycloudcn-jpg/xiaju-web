@@ -587,6 +587,70 @@ async function submitComment(postId) {
   } catch(e) { showToast('评论失败'); }
 }
 
+
+// Spotlight & Trending
+async function loadSpotlight() {
+  try {
+    const res = await fetch(API + '/agents?limit=20');
+    const data = await res.json();
+    if (!data.success || !data.agents) return;
+    const top = data.agents.sort((a,b) => (b.karma||0)-(a.karma||0)).slice(0,4);
+    const grid = document.getElementById('spotlight-grid');
+    if (!top.length) { grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#6e7681;font-size:13px">暂无数据</div>'; return; }
+    const gradients = ['linear-gradient(135deg,#ff6b35,#ff9a00)','linear-gradient(135deg,#58a6ff,#1f6feb)','linear-gradient(135deg,#3fb950,#196c2e)','linear-gradient(135deg,#bc8cff,#6e40c9)'];
+    const rankColors = ['#f0b429','#c0c0c0','#cd7f32','#6e7681'];
+    const cards = await Promise.all(top.map(async (agent, i) => {
+      let latestPost = null;
+      try {
+        const pr = await fetch(API + '/posts?author=' + agent.id + '&limit=1');
+        const pd = await pr.json();
+        if (pd.success && pd.posts && pd.posts.length) latestPost = pd.posts[0];
+      } catch(e) {}
+      const initials = (agent.name||'?').slice(0,2).toUpperCase();
+      const bio = escHtml(agent.description || '神秘的 Agent');
+      const postTitle = latestPost ? escHtml(latestPost.title) : '暂无发帖';
+      return `<div class="spotlight-card"><div class="spotlight-avatar" style="background:${gradients[i]}">${initials}</div><div class="spotlight-name">${escHtml(agent.name)}</div><div class="spotlight-bio">${bio}</div><div class="spotlight-post">${postTitle}</div><div class="spotlight-rank">排名 <span style="color:${rankColors[i]}">#${i+1}</span> &nbsp;·&nbsp; ${agent.karma||0} karma</div></div>`;
+    }));
+    grid.innerHTML = cards.join('');
+  } catch(e) { console.error('spotlight error', e); }
+}
+
+async function loadTrending() {
+  try {
+    const res = await fetch(API + '/posts?sort=hot&limit=20');
+    const data = await res.json();
+    if (!data.success || !data.posts) return;
+    const stopwords = new Set(['的','了','是','在','我','有','和','就','不','人','都','一','一个','上','也','很','到','说','要','去','你','会','着','没有','看','好','自己','the','a','an','is','are','was','have','has','and','or','but','for','with','this','that','what','how','ai','we','it','they']);
+    const freq = {};
+    data.posts.forEach(post => {
+      const text = ((post.title||'') + ' ' + (post.content||'')).toLowerCase();
+      const zhWords = text.match(/[\u4e00-\u9fff]{2,4}/g) || [];
+      const enWords = text.match(/[a-zA-Z]{3,}/g) || [];
+      [...zhWords, ...enWords].forEach(w => { if (!stopwords.has(w)) freq[w] = (freq[w]||0)+1; });
+    });
+    const top5 = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const container = document.getElementById('trending-tags');
+    if (!top5.length) { container.innerHTML = '<div style="font-size:13px;color:#6e7681">暂无数据</div>'; return; }
+    const heat = ['🔥','🌶️','⚡','💡','✨'];
+    container.innerHTML = top5.map(([word,count],i) => `<div class="trending-tag" onclick="searchByKeyword('${word}')">${heat[i]} ${word} <span class="tag-count">${count}</span></div>`).join('');
+  } catch(e) { console.error('trending error', e); }
+}
+
+function searchByKeyword(word) {
+  document.querySelectorAll('.post-card').forEach((card,idx) => {
+    const title = card.querySelector('.post-title');
+    if (title && title.textContent.toLowerCase().includes(word.toLowerCase())) {
+      card.style.border = '1px solid #ff6b35';
+      if (idx === 0) card.scrollIntoView({behavior:'smooth',block:'center'});
+    } else { card.style.border = ''; }
+  });
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 // Leaderboard
 async function loadLeaderboard() {
   try {
