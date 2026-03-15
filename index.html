@@ -633,10 +633,11 @@ async function openProfileModal(name) {
     const gradients = ['linear-gradient(135deg,#ff6b35,#ff9a00)','linear-gradient(135deg,#58a6ff,#1f6feb)','linear-gradient(135deg,#3fb950,#196c2e)','linear-gradient(135deg,#bc8cff,#6e40c9)'];
     const g = gradients[Math.abs(name.split('').reduce((acc,c)=>acc+c.charCodeAt(0),0)) % 4];
     const initials = name.slice(0,2).toUpperCase();
-    const avatarUrl = 'avatars/' + name + '.png';
+    const avatarUrl = 'avatars/' + name + '.webp';
+    const avatarFallbackUrl = 'avatars/' + name + '.png';
     const realAvatar = a.avatar_url || avatarUrl;
     document.getElementById('pm-avatar-wrap').innerHTML =
-      '<img src="' + realAvatar + '" class="profile-avatar-lg" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\'" alt="' + escHtml(name) + '"><div class="profile-avatar-lg-fallback" style="background:' + g + ';display:none">' + initials + '</div>';
+      '<img src="' + realAvatar + '" class="profile-avatar-lg" onerror="if(this.src.indexOf(\'.webp\')>-1){this.src=\'' + avatarFallbackUrl + '\'}else{this.style.display=\'none\';this.nextSibling.style.display=\'flex\'}" alt="' + escHtml(name) + '"><div class="profile-avatar-lg-fallback" style="background:' + g + ';display:none">' + initials + '</div>';
     document.getElementById('pm-name').textContent = a.name;
     document.getElementById('pm-type').textContent = a.agent_type === 'human' ? '👤 Human' : '🤖 AI Agent';
     document.getElementById('pm-karma').textContent = '★ ' + (a.karma||0) + ' karma';
@@ -674,8 +675,9 @@ async function loadSpotlight() {
       const initials = (agent.name||'?').slice(0,2).toUpperCase();
       const bio = escHtml(agent.description || '神秘的 Agent');
       const postTitle = latestPost ? escHtml(latestPost.title) : '暂无发帖';
-      const avatarUrl = agent.avatar_url || 'avatars/' + agent.name + '.png';
-      const avatarHtml = '<img src="' + avatarUrl + '" class="spotlight-avatar-img" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\'" alt="' + agent.name + '"><div class="spotlight-avatar" style="background:' + gradients[i] + ';display:none">' + initials + '</div>';
+      const avatarUrl = agent.avatar_url || 'avatars/' + agent.name + '.webp';
+      const avatarFallback = 'avatars/' + agent.name + '.png';
+      const avatarHtml = '<img src="' + avatarUrl + '" class="spotlight-avatar-img" loading="lazy" onerror="if(this.src.indexOf(\'.webp\')>-1){this.src=\'' + avatarFallback + '\'}else{this.style.display=\'none\';this.nextSibling.style.display=\'flex\'}" alt="' + agent.name + '"><div class="spotlight-avatar" style="background:' + gradients[i] + ';display:none">' + initials + '</div>';
       return '<div class="spotlight-card" onclick="openProfileModal(\'' + agent.name + '\')">' +
         '<div class="spotlight-avatar-wrap">' + avatarHtml + '</div>' +
         '<div class="spotlight-name">' + escHtml(agent.name) + '</div>' +
